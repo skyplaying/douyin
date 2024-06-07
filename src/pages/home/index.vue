@@ -1,6 +1,6 @@
 <template>
   <div class="test-slide-wrapper" id="home-index">
-    <SlideHorizontal v-model:index="state.baseIndex">
+    <SlideHorizontal name="first" v-model:index="state.baseIndex">
       <SlideItem class="sidebar">
         <div class="header">
           <div class="left">下午好</div>
@@ -18,7 +18,7 @@
             </div>
           </div>
           <div class="content">
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <img
                 class="xcx"
                 src="https://lf3-static.bytednsdoc.com/obj/eden-cn/pipieh7nupabozups/toutiao_web_pc/tt-icon.png"
@@ -26,7 +26,7 @@
               />
               <span>今日头条</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <img
                 class="xcx"
                 src="https://gd-hbimg.huaban.com/65130a3e6a139530bb03bd118e21a2603af7df4e1303b-OOzcBu_fw658webp"
@@ -46,7 +46,7 @@
             </div>
           </div>
           <div class="content">
-            <div class="item avatar" @click="$no" :key="i" v-for="i in 6">
+            <div class="item avatar" @click="_no" :key="i" v-for="i in 6">
               <img
                 src="https://img.tol.vip/avatar/WEIXIN/3aSuTGYTzjHvcHy0y0tH1eiShKRk9Sgd.jpg?_upt=de4a5c251709635127"
               />
@@ -61,35 +61,35 @@
             <div class="right"></div>
           </div>
           <div class="content">
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="ion:wallet-outline" />
               <span>我的钱包</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="mingcute:coupon-line" />
               <span>券包</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="icon-park-outline:bytedance-applets" />
               <span>小程序</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="solar:history-linear" />
               <span>观看历史</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="fluent:content-settings-24-regular" />
               <span>内容偏好</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="iconoir:cloud-download" />
               <span>离线模式</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="ep:setting" />
               <span>设置</span>
             </div>
-            <div class="item" @click="$no">
+            <div class="item" @click="_no">
               <Icon icon="icon-park-outline:baggage-delay" />
               <span>稍后再看</span>
             </div>
@@ -100,13 +100,13 @@
         <IndicatorHome
           v-if="!state.fullScreen"
           :loading="baseStore.loading"
-          name="main"
+          name="second"
           @showSlidebar="state.baseIndex = 0"
           v-model:index="state.navIndex"
         />
         <SlideHorizontal
           class="first-horizontal-item"
-          name="main"
+          name="second"
           :change-active-index-use-anim="false"
           v-model:index="state.navIndex"
         >
@@ -160,7 +160,7 @@
       :videoId="state.recommendList[state.itemIndex]?.id"
       :canDownload="state.recommendList[state.itemIndex]?.canDownload"
       @play-feedback="state.showPlayFeedback = true"
-      @shareToFriend="delayShowDialog((e) => (state.shareToFriend = true))"
+      @shareToFriend="delayShowDialog(() => (state.shareToFriend = true))"
       @showDouyinCode="state.showDouyinCode = true"
       @download="state.shareType = 9"
     />
@@ -185,7 +185,7 @@
 
     <FollowSetting2
       v-model:currentItem="state.currentItem"
-      @cancelFollow="$refs.uploader.cancelFollow()"
+      @cancelFollow="uploader.cancelFollow()"
       v-model="state.showFollowSetting2"
     />
 
@@ -196,16 +196,28 @@
     </ConfirmDialog>
 
     <ShareToFriend v-model="state.shareToFriend" />
+
+    <BaseMask v-if="!isMobile" @click="isMobile = true" />
+    <div v-if="!isMobile" class="guide">
+      <Icon class="danger" icon="mynaui:danger-triangle" />
+      <Icon class="close" icon="simple-line-icons:close" @click="isMobile = true" />
+      <div class="txt">
+        <h2>切换至手机模式获取最佳体验</h2>
+        <h3>1. 按 F12 调出控制台</h3>
+        <h3>2. 按 Ctrl+Shift+M，或点击下面图标</h3>
+      </div>
+      <img src="@/assets/img/guide.png" alt="" />
+    </div>
   </div>
 </template>
 
-<script setup lang="jsx">
+<script setup lang="tsx">
 import SlideHorizontal from '@/components/slide/SlideHorizontal.vue'
 import SlideItem from '@/components/slide/SlideItem.vue'
 import Comment from '../../components/Comment.vue'
 import Share from '../../components/Share.vue'
 import IndicatorHome from './components/IndicatorHome.vue'
-import { onActivated, onDeactivated, onMounted, onUnmounted, reactive } from 'vue'
+import { onActivated, onDeactivated, onMounted, onUnmounted, reactive, ref } from 'vue'
 import bus, { EVENT_KEY } from '../../utils/bus'
 import { useNav } from '@/utils/hooks/useNav'
 import PlayFeedback from '@/pages/home/components/PlayFeedback.vue'
@@ -223,17 +235,21 @@ import Slide0 from '@/pages/home/slide/Slide0.vue'
 import Slide2 from '@/pages/home/slide/Slide2.vue'
 import Slide4 from '@/pages/home/slide/Slide4.vue'
 import { DefaultUser } from '@/utils/const_var'
-import { $no } from '@/utils'
+import { _no } from '@/utils'
 import LongVideo from '@/pages/home/slide/LongVideo.vue'
 import { useBaseStore } from '@/store/pinia'
+import BaseMask from '@/components/BaseMask.vue'
 
 const nav = useNav()
 const baseStore = useBaseStore()
+const uploader = ref()
+const isMobile = ref(/Mobi|Android|iPhone/i.test(navigator.userAgent))
 
 const state = reactive({
   active: true,
   baseIndex: 1,
   navIndex: 4,
+  itemIndex: 0,
   test: '',
   recommendList: [],
   isSharing: false,
@@ -253,13 +269,14 @@ const state = reactive({
   commentVisible: false,
   fullScreen: false,
   currentItem: {
+    aweme_id: '',
     author: DefaultUser,
     isRequest: false,
     aweme_list: []
   }
 })
 
-function delayShowDialog(cb) {
+function delayShowDialog(cb: Function) {
   setTimeout(cb, 400)
 }
 
@@ -317,10 +334,12 @@ onUnmounted(() => {
 
 onActivated(() => {
   state.active = true
+  bus.emit(EVENT_KEY.TOGGLE_CURRENT_VIDEO)
 })
 
 onDeactivated(() => {
   state.active = false
+  bus.emit(EVENT_KEY.TOGGLE_CURRENT_VIDEO)
 })
 
 function closeComments() {
@@ -330,7 +349,7 @@ function closeComments() {
 function dislike() {
   // listRef.value.dislike(state.list[1])
   // state.list[state.index] = state.list[1]
-  // Utils.$notice('操作成功，将减少此类视频的推荐')
+  // _notice('操作成功，将减少此类视频的推荐')
 }
 </script>
 
@@ -343,7 +362,8 @@ function dislike() {
   overflow: hidden;
 
   .sidebar {
-    width: 80vw;
+    touch-action: pan-y;
+    width: 80%;
     height: calc(var(--vh, 1vh) * 100);
     overflow: auto;
     background: rgb(22, 22, 22);
@@ -446,9 +466,47 @@ function dislike() {
 .first-horizontal-item {
   //width: 90vw;
   //height: 80vh;
-  width: 100vw;
+  width: 100%;
   height: calc(var(--vh, 1vh) * 100 - var(--footer-height)) !important;
   overflow: hidden;
   border-radius: 10rem;
+}
+
+.guide {
+  color: white;
+  z-index: 999;
+  background: var(--active-main-bg);
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 16rem;
+  overflow: hidden;
+  text-align: center;
+
+  .danger {
+    margin-top: 10rem;
+    font-size: 40rem;
+    color: red;
+  }
+
+  .close {
+    cursor: pointer;
+    font-size: 18rem;
+    color: white;
+    position: absolute;
+    right: 15rem;
+    top: 15rem;
+  }
+
+  .txt {
+    text-align: left;
+    padding: 0 24rem;
+  }
+
+  img {
+    display: block;
+    width: 350rem;
+  }
 }
 </style>

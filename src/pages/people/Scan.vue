@@ -1,6 +1,6 @@
 <template>
   <div class="Scan">
-    <img src="../../assets/img/icon/components/gray-back.png" @click="$back" class="back" />
+    <img src="../../assets/img/icon/components/gray-back.png" @click="router.back()" class="back" />
     <div class="video-ctn">
       <video src="http://qy9rc9xff.hn-bkt.clouddn.com/0.mp4"></video>
     </div>
@@ -21,17 +21,15 @@
     <div class="scan-anim"></div>
   </div>
 </template>
-<script>
+<script setup>
 //TODO 那个动画没做，用css画有点麻烦，后面ps p一张图片吧
-export default {
-  name: 'Scan',
-  data() {
-    return {}
-  },
-  computed: {},
-  created() {},
-  methods: {}
-}
+
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+defineOptions({
+  name: 'Scan'
+})
 </script>
 
 <style scoped lang="less">
@@ -58,7 +56,7 @@ export default {
     bottom: 60rem;
     display: flex;
     justify-content: space-between;
-    width: 80vw;
+    width: 80%;
     left: 10vw;
 
     .option {

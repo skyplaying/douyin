@@ -1,7 +1,7 @@
 <template>
   <div id="video-detail">
     <div class="search-wrapper">
-      <Icon class="back" icon="icon-park-outline:left" @click="$back" />
+      <Icon class="back" icon="icon-park-outline:left" @click="router.back" />
       <div class="search" @click="nav('/home/search')">
         <div class="left">
           <Icon class="icon" icon="ion:search" />
@@ -103,7 +103,7 @@
 <script setup lang="jsx">
 import Comment from '../../components/Comment.vue'
 import Share from '../../components/Share.vue'
-import { onMounted, onUnmounted, reactive } from 'vue'
+import { onActivated, onDeactivated, onMounted, onUnmounted, reactive } from 'vue'
 import bus, { EVENT_KEY } from '../../utils/bus'
 import { useNav } from '@/utils/hooks/useNav'
 import PlayFeedback from '@/pages/home/components/PlayFeedback.vue'
@@ -116,10 +116,9 @@ import ConfirmDialog from '../../components/dialog/ConfirmDialog.vue'
 import FollowSetting2 from '@/pages/home/components/FollowSetting2.vue'
 import ShareToFriend from '@/pages/home/components/ShareToFriend.vue'
 import { DefaultUser } from '@/utils/const_var'
-import { _checkImgUrl } from '@/utils'
+import { _checkImgUrl, slideItemRender } from '@/utils'
 import { useBaseStore } from '@/store/pinia'
 import SlideVerticalInfinite from '@/components/slide/SlideVerticalInfinite.vue'
-import { useSlideListItemRender } from '@/utils/hooks/useSlideListItemRender'
 import { useRouter } from 'vue-router'
 
 defineOptions({
@@ -158,13 +157,13 @@ const state = reactive({
   },
   index: 0,
   list: [],
-  uniqueId: 'uniqueId_2',
+  uniqueId: 'video_detail_list',
   totalSize: 0,
   pageSize: 10,
   pageNo: 0
 })
 
-const render = useSlideListItemRender()
+const render = slideItemRender()
 
 onMounted(() => {
   // console.log('s', store.routeData)
@@ -191,6 +190,7 @@ function setCurrentItem(item) {
 }
 
 onMounted(() => {
+  bus.on(EVENT_KEY.SINGLE_CLICK, click)
   bus.on(EVENT_KEY.ENTER_FULLSCREEN, () => (state.fullScreen = true))
   bus.on(EVENT_KEY.EXIT_FULLSCREEN, () => (state.fullScreen = false))
   bus.on(EVENT_KEY.OPEN_COMMENTS, () => {
@@ -222,8 +222,24 @@ function closeComments() {
 function dislike() {
   // listRef.value.dislike(state.list[1])
   // state.list[state.index] = state.list[1]
-  // Utils.$notice('操作成功，将减少此类视频的推荐')
+  // _notice('操作成功，将减少此类视频的推荐')
 }
+
+function click(uniqueId) {
+  bus.emit(EVENT_KEY.SINGLE_CLICK_BROADCAST, {
+    uniqueId,
+    index: state.index,
+    type: EVENT_KEY.ITEM_TOGGLE
+  })
+}
+
+onActivated(() => {
+  bus.emit(EVENT_KEY.TOGGLE_CURRENT_VIDEO)
+})
+
+onDeactivated(() => {
+  bus.emit(EVENT_KEY.TOGGLE_CURRENT_VIDEO)
+})
 </script>
 
 <style scoped lang="less">

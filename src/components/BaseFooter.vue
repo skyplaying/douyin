@@ -47,6 +47,9 @@ export default {
     bus.off(EVENT_KEY.EXIT_FULLSCREEN)
   },
   methods: {
+    $nav(path) {
+      this.$router.push(path)
+    },
     tab(index) {
       switch (index) {
         case 1:
@@ -128,6 +131,7 @@ export default {
     }
 
     .add-ctn {
+      cursor: pointer;
       @height: 27rem;
       @width: 36rem;
       height: @height;
@@ -147,6 +151,8 @@ export default {
     }
 
     span {
+      cursor: pointer;
+
       font-weight: bold;
       opacity: 0.7;
 
@@ -156,8 +162,8 @@ export default {
     }
 
     .badge {
-      right: 10rem;
-      top: 6rem;
+      right: 14rem;
+      top: 12rem;
       position: absolute;
     }
   }

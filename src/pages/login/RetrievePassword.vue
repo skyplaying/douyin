@@ -32,11 +32,13 @@
         </div>
         <div class="right">
           已阅读并同意
-          <span class="link" @click="$nav('/service-protocol', { type: '“抖音”用户服务协议' })"
+          <span
+            class="link"
+            @click="$router.push('/service-protocol', { type: '“抖音”用户服务协议' })"
             >用户协议</span
           >
           和
-          <span class="link" @click="$nav('/service-protocol', { type: '“抖音”隐私政策' })"
+          <span class="link" @click="$router.push('/service-protocol', { type: '“抖音”隐私政策' })"
             >隐私政策</span
           >
           ，同时登录并使用抖音火山版（原“火山小视频”）和抖音
@@ -69,6 +71,7 @@ import Check from '../../components/Check'
 import LoginInput from './components/LoginInput'
 import Tooltip from './components/Tooltip'
 import Base from './Base'
+import { _hideLoading, _showConfirmDialog, _showLoading, _showNoticeDialog, _sleep } from '@/utils'
 
 export default {
   name: 'RetrievePassword',
@@ -100,13 +103,13 @@ export default {
   },
   methods: {
     getVoiceCode() {
-      return this.$showNoticeDialog(
+      return _showNoticeDialog(
         '语音验证码',
         '我们将以电话的方式告知你验证码，请注意接听',
         '',
         () => {
           setTimeout(() => {
-            this.$showConfirmDialog(
+            _showConfirmDialog(
               '',
               '您的手机可能由于空号/欠费/停机无法收到验证码，请恢复手机号状态，如果' +
                 '您因为换号无法收到验证码，可以尝试找回账号',
@@ -124,9 +127,9 @@ export default {
     },
     //TODO loading样式不对
     async sendCode() {
-      this.$showLoading()
-      await this.$sleep(500)
-      this.$hideLoading()
+      _showLoading()
+      await _sleep(500)
+      _hideLoading()
       this.isSendVerificationCode = true
     },
     async login() {
